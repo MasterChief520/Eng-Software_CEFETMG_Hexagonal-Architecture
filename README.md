@@ -44,24 +44,141 @@ Daí a necessidade de componentes localizados no hexágono mais externo da arqui
   encaminham essas chamadas para métodos adequados das portas de entrada.
 - Eles recebem chamadas vindas de dentro do sistema, isto é, das classes de domínio, e as direcionam para um sistema externo, tais como um banco de dados, um outro sistema da organização ou mesmo de terceiros.
 ![hex-ports-adapters](img.png)
-## 1.3 Exemplo de implementação
+## 2.1 Exemplo de implementação
 
+Um simples exemplo de implementação dessa arquitetura é usando o SpringBoot2 e o Maven.
+
+Primeiro criamos um headless API para esse propósito. Essa API vai pegar a informação de uma conta pela chamada GET.
+![hex-ports-adapters](implementacao.png)
+
+## 2.2 Controller or User Adapter
+
+A classe AccountResource é o nosso adaptador. Ele conecta a aplicação do usuário para o núcleo do nosso negócio. Iremos então chamar esses métodos definidos na interface AccountService da classe controladora.
 
 ```java
 @RestController
 @RequestMapping(path = "/api")
 public class AccountResource {
-@Autowired
-private AccountService accountService;
-@GetMapping(path = "/account/{accountNumber}", produces =
-"application/json")
-public ResponseEntity<Account>
-getAccountInfo(@PathVariable("accountNumber") String accountNumber)
-{
-return
-ResponseEntity.ok(accountService.getAccountInfo(accountNumber));
+  @Autowired
+  private AccountService accountService;  
+  @GetMapping(path = "/account/{accountNumber}", produces =
+  "application/json")
+  public ResponseEntity<Account>
+  getAccountInfo(@PathVariable("accountNumber") String accountNumber){
+    return ResponseEntity.ok(accountService.getAccountInfo(accountNumber));
+  }
 }
-}
+```
+## 2.3 Service Interface or Port
 
+Vamos então escrever os métodos abstratos na interface AccountService. 
+AccountService é a porta entre o controlador e o núcleo da classe de negócios.
+
+```java
+public interface AccountService {
+  public Account getAccountInfo (String accountNumber);
+}
+```
+## 2.4 Core Logic
+
+Vamos então escrever a lógica de negócio relacionada à nossa aplicação na classe AccountServiceImpl.
+```java
+@Service 
+public class AccountServiceImpl implements AccountService {
+  @Autowired
+  private AccountRepository accountRepository;
+  @Override
+  public Account getAccountInfo(String accountNumber) {
+    return accountRepository.findAccount(accountNumber);
+  }
+}
 ```
 
+## 2.5 Domain Objects
+
+Agora implementando as classes de domínio. A classe Account vai armazenar o dado do domínio.
+```java
+public class Account {
+  private Integer accountNumber;
+  private String accountHolderName;
+  private Double balance;
+  private AccountType accountType;
+  
+  public Account() { }
+  
+  public Account(Integer accountNumber, String accountHolderName, Double balance, AccountType accountType) {
+    this.accountNumber = accountNumber;
+    this.accountHolderName = accountHolderName;
+    this.balance = balance; this.accountType = accountType;
+  }
+}
+```
+
+Criamos então um tipo enumerável AccountType
+
+```java
+public enum AccountType {
+  SAVINGS, CURRENT;
+}
+```
+
+## 2.6 Repository Interface or Port
+
+Escrevemos então métodos abstratos na interface AccountRepository
+
+Escrevemos também a Implementação desses métodos na classe adaptadora -- AccountRepositoryImpl.
+
+```java
+public interface AccountRepository {
+  public Account findAccount(String acctNumber);
+}
+```
+
+## 2.7 Repository Implementation or Adapter
+
+Escrevemos então os métodos na classe AccountRepositoryImpl. 
+Vamos escrever um bloco estático que agiria com uma fonte de dados. Esses blocos estáticos também podem ser substituídos por qualquer outra fonte de dados.
+
+```java
+@Repository
+public class AccountRepositoryImpl implements AccountRepository {
+  private static Map<Integer, Account> accountInfo = new HashMap<>();
+  static {
+    accountInfo.put(1234, new Account(1234, "Mr. X", 2025.45, AccountType.CURRENT));
+    accountInfo.put(5678, new Account(5678, "Mr. Y", 2125.45, AccountType.SAVINGS));
+  }
+  @Override
+  public Account findAccount(String acctNumber) {
+    Integer accountNumber = Integer.valueOf(acctNumber);
+    if (null != accountInfo.get(accountNumber)) {
+      return accountInfo.get(accountNumber);
+    }
+    return new Account();
+  }
+}
+```
+
+Agora, precisamos executar a nossa aplicação de SpringBoot. Usaremos qualquer cliente de nossa escolha para testar a API. Precisamos passar 1 de 2 valores definidos
+no bloco estático como entrada.
+
+## TESTE
+
+Vamos acessar a API -- "http://localhost:8080/api/account/5678"
+```json
+{"accountNumber":5678,"accountHolderName":"Mr. Y","balance":2125.45,"accountType":"SAVINGS"}
+```
+
+## Conclusão
+
+Nesse Roteiro prático, nós aprendemos como deixar a nossa lógica de negócio isolada do usuário e do servidor, demonstrando então a aplicação da Arquitetura Hexagonal.
+
+
+Membros:
+
+João Victor Dias Gomes @DiasGomes
+
+Pedro Costa Calazans @pedrocostacalazans 
+
+Pedro Henrique Maia Duarte @Pedro-m-Duarte
+
+Thales Henrique Bastos Neves @MasterChief520
