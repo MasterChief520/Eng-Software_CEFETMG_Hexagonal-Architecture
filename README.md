@@ -43,12 +43,9 @@ Daí a necessidade de componentes localizados no hexágono mais externo da arqui
 - Eles recebem chamadas de métodos vindas de fora do sistema e
   encaminham essas chamadas para métodos adequados das portas de entrada.
 - Eles recebem chamadas vindas de dentro do sistema, isto é, das classes de domínio, e as direcionam para um sistema externo, tais como um banco de dados, um outro sistema da organização ou mesmo de terceiros.
+![hex-ports-adapters](img.png)
+## 1.3 Exemplo de implementação
 
-## 1.3 Exemplo: Sistema de Bibliotecas
-
-A próxima figura mostra a arquitetura hexagonal de um sistema para gerenciamento de bibliotecas:
-
-![hex-ports-adapters](hex-ports-adapters.svg)
 
 ```java
 @RestController
