@@ -175,10 +175,10 @@ Nesse Roteiro prático, nós aprendemos como deixar a nossa lógica de negócio 
 
 Membros:
 
-João Victor Dias Gomes @DiasGomes
+João Victor Dias Gomes [@DiasGomes](https://github.com/DiasGomes)
 
-Pedro Costa Calazans @pedrocostacalazans 
+Pedro Costa Calazans [@pedrocostacalazans ](https://github.com/pedrocostacalazans)
 
-Pedro Henrique Maia Duarte @Pedro-m-Duarte
+Pedro Henrique Maia Duarte [@Pedro-m-Duarte](https://github.com/Pedro-m-Duarte)
 
-Thales Henrique Bastos Neves @MasterChief520
+Thales Henrique Bastos Neves [@MasterChief520](https://github.com/MasterChief520)
